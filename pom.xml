@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.builderscoffee</groupId>
-    <artifactId>builderscoffeehub</artifactId>
+    <artifactId>BuildersCoffeeHub</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -68,17 +68,28 @@
     </repositories>
 
     <dependencies>
+
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.16</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>eu.builderscoffee.api</groupId>
+            <artifactId>BuildersCoffeApi</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/builderscoffeeapi-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+
     </dependencies>
 </project>
