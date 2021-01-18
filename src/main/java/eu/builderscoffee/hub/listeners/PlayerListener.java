@@ -1,6 +1,7 @@
 package eu.builderscoffee.hub.listeners;
 
 import eu.builderscoffee.api.utils.ItemBuilder;
+import eu.builderscoffee.api.utils.LocationsUtil;
 import eu.builderscoffee.hub.Main;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -36,6 +37,7 @@ public class PlayerListener implements Listener {
         player.getInventory().clear();
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, hubCompass);
+        player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation()));
     }
 
     @EventHandler
@@ -71,12 +73,12 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        /*Player player = event.getPlayer();
-        Location hubLocation = Main.getInstance().getHubConfiguration().getHubLocation();
+        Player player = event.getPlayer();
+        Location hubLocation = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation());
 
         if(player.getLocation().getWorld().equals(hubLocation.getWorld()) && player.getLocation().getY() < 0) {
             player.teleport(hubLocation);
-        }*/
+        }
     }
 
     @EventHandler

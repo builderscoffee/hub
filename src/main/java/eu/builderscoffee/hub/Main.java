@@ -6,6 +6,8 @@ import eu.builderscoffee.hub.listeners.PlayerListener;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import static eu.builderscoffee.api.configuration.Configurations.readOrCreateConfiguration;
+
 public class Main extends JavaPlugin {
 
     //Configuration
@@ -24,8 +26,8 @@ public class Main extends JavaPlugin {
         // Configuration
 
         //log("Chargement des configurations");
-        //messageConfiguration = readOrCreateConfiguration(this, MessageConfiguration.class);
-        //hubConfiguration = Configurations.readOrCreateConfiguration(this, HubConfiguration.class);
+        messageConfiguration = readOrCreateConfiguration(this, MessageConfiguration.class);
+        hubConfiguration = readOrCreateConfiguration(this, HubConfiguration.class);
 
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     }

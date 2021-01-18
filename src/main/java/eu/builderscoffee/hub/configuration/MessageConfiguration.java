@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Configuration("messages")
-public class MessageConfiguration {
+public final class MessageConfiguration {
 
-    private String test = "test";
+    String test = "test";
 }
