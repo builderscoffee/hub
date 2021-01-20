@@ -7,5 +7,6 @@ import lombok.Data;
 @Configuration("messages")
 public final class MessageConfiguration {
 
-    String test = "test";
+    String title = "&aBienvenue sur &fBuilders Coffee !";
+    String subTitle = "&7Buvez vos idées,&7construisez votre café !";
 }

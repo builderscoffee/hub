@@ -2,7 +2,9 @@ package eu.builderscoffee.hub.listeners;
 
 import eu.builderscoffee.api.utils.ItemBuilder;
 import eu.builderscoffee.api.utils.LocationsUtil;
+import eu.builderscoffee.api.utils.Title;
 import eu.builderscoffee.hub.Main;
+import eu.builderscoffee.hub.configuration.MessageConfiguration;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,13 +26,16 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerListener implements Listener {
 
-    private ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName("§k§6|§eNavigation§k§6").build();
+    private final ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName("§k§6|§eNavigation§k§6").build();
+    private final MessageConfiguration messages = Main.getInstance().getMessageConfiguration();
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
         player.setGameMode(GameMode.ADVENTURE);
+        player.setHealth(20);
+        player.setFoodLevel(20);
 
         player.setAllowFlight(true);
 
@@ -38,17 +43,18 @@ public class PlayerListener implements Listener {
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, hubCompass);
         player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation()));
+        new Title(messages.getTitle().replace("&", "§"), messages.getSubTitle().replace("&", "§"), 20, 100, 20).send(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-
+        // Nothing to do here
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-        if(event.getEntity() instanceof Player) {
+        if (event.getEntity() instanceof Player) {
             event.setCancelled(true);
         }
     }
@@ -57,7 +63,7 @@ public class PlayerListener implements Listener {
     public void onOpenNetworkInventory(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if(event.getItem() != null && event.getItem().isSimilar(hubCompass)) {
+        if (event.getItem() != null && event.getItem().isSimilar(hubCompass)) {
             player.performCommand("network");
         }
     }
@@ -66,7 +72,7 @@ public class PlayerListener implements Listener {
     public void onMoveInventoryItems(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
 
-        if(!canModifyHub(player, "builderscoffee.temp")) {
+        if (!canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
@@ -76,7 +82,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         Location hubLocation = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation());
 
-        if(player.getLocation().getWorld().equals(hubLocation.getWorld()) && player.getLocation().getY() < 0) {
+        if (player.getLocation().getWorld().equals(hubLocation.getWorld()) && player.getLocation().getY() < 0) {
             player.teleport(hubLocation);
         }
     }
@@ -95,7 +101,7 @@ public class PlayerListener implements Listener {
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
 
-        if(!canModifyHub(player, "builderscoffee.temp")) {
+        if (!canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
@@ -104,7 +110,7 @@ public class PlayerListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if(!canModifyHub(player, "builderscoffee.temp")) {
+        if (!canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
@@ -113,7 +119,7 @@ public class PlayerListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
 
-        if(!canModifyHub(player, "builderscoffee.temp")) {
+        if (!canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
@@ -122,7 +128,7 @@ public class PlayerListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
 
-        if(!canModifyHub(player, "builderscoffee.temp")) {
+        if (!canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
@@ -132,7 +138,7 @@ public class PlayerListener implements Listener {
     public void onRightClickEntity(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
 
-        if(event.getRightClicked() instanceof ItemFrame && !canModifyHub(player, "builderscoffee.temp")) {
+        if (event.getRightClicked() instanceof ItemFrame && !canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
@@ -141,18 +147,18 @@ public class PlayerListener implements Listener {
     public void onRightClickAtEntity(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
 
-        if(event.getRightClicked() instanceof ArmorStand && !canModifyHub(player, "builderscoffee.temp")) {
+        if (event.getRightClicked() instanceof ArmorStand && !canModifyHub(player, "builderscoffee.temp")) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onLeftClickEntity(EntityDamageByEntityEvent event) {
-        if(event.getDamager() instanceof Player) {
+        if (event.getDamager() instanceof Player) {
             Player player = (Player) event.getDamager();
             Entity entity = event.getEntity();
 
-            if((entity instanceof ItemFrame || entity instanceof ArmorStand) && !canModifyHub(player, "builderscoffee.temp")) {
+            if ((entity instanceof ItemFrame || entity instanceof ArmorStand) && !canModifyHub(player, "builderscoffee.temp")) {
                 event.setCancelled(true);
             }
         }
@@ -160,16 +166,16 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPaintingBreak(HangingBreakByEntityEvent event) {
-        if(event.getRemover() instanceof Player) {
+        if (event.getRemover() instanceof Player) {
             Player player = (Player) event.getRemover();
 
-            if(!canModifyHub(player, "builderscoffee.temp")) {
+            if (!canModifyHub(player, "builderscoffee.temp")) {
                 event.setCancelled(true);
             }
         }
     }
 
-    private boolean canModifyHub(Player player, String permission){
+    private boolean canModifyHub(Player player, String permission) {
         return player.hasPermission(permission) && player.getGameMode().equals(GameMode.CREATIVE);
     }
 }
