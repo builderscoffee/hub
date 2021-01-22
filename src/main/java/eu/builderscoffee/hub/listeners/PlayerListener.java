@@ -1,10 +1,13 @@
 package eu.builderscoffee.hub.listeners;
 
+import eu.builderscoffee.api.utils.HeaderAndFooter;
 import eu.builderscoffee.api.utils.ItemBuilder;
 import eu.builderscoffee.api.utils.LocationsUtil;
 import eu.builderscoffee.api.utils.Title;
 import eu.builderscoffee.hub.Main;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
+import lombok.val;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,10 +27,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+
 public class PlayerListener implements Listener {
 
-    private final ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName("§k§6|§eNavigation§k§6").build();
     private final MessageConfiguration messages = Main.getInstance().getMessageConfiguration();
+    private final ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName(messages.getCompassName()).build();
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -44,6 +49,7 @@ public class PlayerListener implements Listener {
         player.getInventory().setItem(4, hubCompass);
         player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation()));
         new Title(messages.getTitle().replace("&", "§"), messages.getSubTitle().replace("&", "§"), 20, 100, 20).send(player);
+        new HeaderAndFooter(messages.getHeaderMessage().replace("&", "§"), messages.getFooterMessage().replace("&", "§")).send(player);
     }
 
     @EventHandler
