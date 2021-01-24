@@ -17,16 +17,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class PlayerListener implements Listener {
@@ -35,6 +39,7 @@ public class PlayerListener implements Listener {
     private final HubConfiguration hubConfig = Main.getInstance().getHubConfiguration();
     private final ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName(messagesConfig.getCompassName()).build();
 
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
@@ -42,8 +47,8 @@ public class PlayerListener implements Listener {
         player.setGameMode(GameMode.ADVENTURE);
         player.setHealth(20);
         player.setFoodLevel(20);
-
         player.setAllowFlight(true);
+        player.setFlying(false);
 
         player.getInventory().clear();
         player.getInventory().setHeldItemSlot(4);
@@ -56,7 +61,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
-        // Nothing to do here
+
+        //Nothing to do
     }
 
     @EventHandler
@@ -83,6 +89,28 @@ public class PlayerListener implements Listener {
         if(message.equalsIgnoreCase("/hub") || message.equalsIgnoreCase("/lobby")) {
             event.setCancelled(true);
             player.teleport(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()));
+        }
+    }
+
+    @EventHandler
+    public void onToggleFly(PlayerToggleFlightEvent event) {
+        final Player player = event.getPlayer();
+
+        if(player.getGameMode().equals(GameMode.ADVENTURE) || player.getGameMode().equals(GameMode.SURVIVAL)) {
+            Vector vector = player.getLocation().getDirection().multiply(1);
+            vector.setY(1);
+            player.setVelocity(vector);
+            player.setAllowFlight(false);
+
+            event.setCancelled(true);
+
+            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    player.setAllowFlight(true);
+                }
+            }, 40L);
+
         }
     }
 
@@ -143,6 +171,30 @@ public class PlayerListener implements Listener {
         final Player player = event.getPlayer();
 
         if (!canModifyHub(player, "builderscoffee.temp")) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onExplode(ExplosionPrimeEvent event) {
+        final Location location = event.getEntity().getLocation();
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()))) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onExplode(EntityExplodeEvent event) {
+        final Location location = event.getEntity().getLocation();
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()))) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void OnLeaveDecay(LeavesDecayEvent event) {
+        final Location location = event.getBlock().getLocation();
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()))) {
             event.setCancelled(true);
         }
     }
