@@ -10,6 +10,6 @@ public final class MessageConfiguration {
     String title = "&aBienvenue sur &fBuilders Coffee !";
     String subTitle = "&7Buvez vos idées,&7construisez votre café !";
     String compassName = "§6§k|§eNavigation§6§k|";
-    String headerMessage = "&bBuilderscofee";
+    String headerMessage = "&4&lBuilders Coffee";
     String footerMessage = "&5play.builderscoffee.eu";
 }
