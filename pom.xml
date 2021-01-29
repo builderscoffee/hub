@@ -91,5 +91,13 @@
             <systemPath>${project.basedir}/libs/builderscoffeeapi-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
+        <dependency>
+            <groupId>eu.builderscoffee.commons</groupId>
+            <artifactId>BuildersCoffeCommons</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../library/BuildersCoffeeCommons-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+
     </dependencies>
 </project>

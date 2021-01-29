@@ -1,10 +1,12 @@
 package eu.builderscoffee.hub.listeners;
 
+import eu.builderscoffee.api.board.FastBoard;
 import eu.builderscoffee.api.utils.HeaderAndFooter;
 import eu.builderscoffee.api.utils.ItemBuilder;
 import eu.builderscoffee.api.utils.LocationsUtil;
 import eu.builderscoffee.api.utils.Title;
 import eu.builderscoffee.hub.Main;
+import eu.builderscoffee.hub.board.BBBoard;
 import eu.builderscoffee.hub.configuration.HubConfiguration;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
 import lombok.val;
@@ -44,6 +46,11 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
 
+        // Scoreboard Updater
+        FastBoard board = new FastBoard(player);
+        board.updateTitle(messagesConfig.getScoreBoardTitle().replace("&", "§")); // Même titre pour tout
+        BBBoard.boards.put(player.getUniqueId(), board);
+
         player.setGameMode(GameMode.ADVENTURE);
         player.setHealth(20);
         player.setFoodLevel(20);
@@ -62,7 +69,10 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
 
-        //Nothing to do
+        // Scoreboard clean
+        FastBoard board = BBBoard.boards.remove(event.getPlayer().getUniqueId());
+        if (board != null)
+            board.delete();
     }
 
     @EventHandler

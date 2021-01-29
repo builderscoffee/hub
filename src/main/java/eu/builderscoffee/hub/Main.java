@@ -1,5 +1,7 @@
 package eu.builderscoffee.hub;
 
+import eu.builderscoffee.api.board.FastBoard;
+import eu.builderscoffee.hub.board.BBBoard;
 import eu.builderscoffee.hub.configuration.HubConfiguration;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
 import eu.builderscoffee.hub.listeners.PlayerListener;
@@ -31,6 +33,13 @@ public class Main extends JavaPlugin {
 
         // Register Events
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+
+        // Update scoreboard
+        this.getServer().getScheduler().runTaskTimer(this, () -> {
+            for (FastBoard board : BBBoard.boards.values()) {
+                BBBoard.updateBoard(board);
+            }
+        }, 0, 20);
     }
 
     @Override
