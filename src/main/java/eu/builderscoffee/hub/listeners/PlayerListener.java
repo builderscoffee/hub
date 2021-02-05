@@ -27,6 +27,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -41,7 +43,6 @@ public class PlayerListener implements Listener {
     private final HubConfiguration hubConfig = Main.getInstance().getHubConfiguration();
     private final ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName(messagesConfig.getCompassName()).build();
 
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
@@ -51,16 +52,18 @@ public class PlayerListener implements Listener {
         board.updateTitle(messagesConfig.getScoreBoardTitle().replace("&", "§")); // Même titre pour tout
         BBBoard.boards.put(player.getUniqueId(), board);
 
+        // Player initialisation
         player.setGameMode(GameMode.ADVENTURE);
         player.setHealth(20);
         player.setFoodLevel(20);
-        player.setAllowFlight(true);
         player.setFlying(false);
+        player.setAllowFlight(true);
 
         player.getInventory().clear();
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, hubCompass);
         player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation()));
+
         new Title(messagesConfig.getTitle().replace("&", "§"), messagesConfig.getSubTitle().replace("&", "§"), 20, 100, 20).send(player);
         new HeaderAndFooter(messagesConfig.getHeaderMessage().replace("&", "§"), messagesConfig.getFooterMessage().replace("&", "§")).send(player);
     }
@@ -147,14 +150,16 @@ public class PlayerListener implements Listener {
     public void onOpenInventory(InventoryOpenEvent event) {
         final Player player = (Player) event.getPlayer();
 
-        player.playSound(player.getLocation(), Sound.ENTITY_SNOWMAN_SHOOT, 1f, 1f);
+        if(!event.getView().equals(player.getOpenInventory()))
+            player.playSound(player.getLocation(), Sound.ENTITY_SNOWMAN_SHOOT, 1f, 1f);
     }
 
     @EventHandler
     public void onOpenInventory(InventoryCloseEvent event) {
         final Player player = (Player) event.getPlayer();
 
-        player.playSound(player.getLocation(), Sound.ENTITY_SNOWMAN_SHOOT, 1f, 1f);
+        if(!event.getView().equals(player.getOpenInventory()))
+            player.playSound(player.getLocation(), Sound.ENTITY_SNOWMAN_SHOOT, 1f, 1f);
     }
 
     @EventHandler

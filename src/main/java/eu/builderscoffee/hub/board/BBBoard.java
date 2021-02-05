@@ -14,6 +14,10 @@ public class BBBoard {
 
     private static int amountPlayers = 0;
 
+    /***
+     * Mettre à jours le scoreboard tout les ticks
+     * @param board
+     */
     public static void updateBoard(FastBoard board) {
         final Player player = board.getPlayer();
         eu.builderscoffee.api.Main.getBungeeChannelApi().getPlayerCount("ALL")
