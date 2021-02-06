@@ -56,8 +56,14 @@ public class PlayerListener implements Listener {
         player.setGameMode(GameMode.ADVENTURE);
         player.setHealth(20);
         player.setFoodLevel(20);
-        player.setFlying(false);
-        player.setAllowFlight(true);
+
+        Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                player.setFlying(false);
+                player.setAllowFlight(true);
+            }
+        }, 2L);
 
         player.getInventory().clear();
         player.getInventory().setHeldItemSlot(4);
