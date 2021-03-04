@@ -1,6 +1,6 @@
 package eu.builderscoffee.hub.configuration;
 
-import eu.builderscoffee.api.configuration.annotation.Configuration;
+import eu.builderscoffee.api.common.configuration.annotation.Configuration;
 import lombok.Data;
 import lombok.Getter;
 

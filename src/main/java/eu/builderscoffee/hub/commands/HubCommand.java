@@ -1,6 +1,6 @@
 package eu.builderscoffee.hub.commands;
 
-import eu.builderscoffee.api.utils.LocationsUtil;
+import eu.builderscoffee.api.bukkit.utils.LocationsUtil;
 import eu.builderscoffee.hub.Main;
 import org.bukkit.Location;
 import org.bukkit.command.Command;

@@ -1,6 +1,6 @@
 package eu.builderscoffee.hub;
 
-import eu.builderscoffee.api.board.FastBoard;
+import eu.builderscoffee.api.bukkit.board.FastBoard;
 import eu.builderscoffee.hub.board.BBBoard;
 import eu.builderscoffee.hub.configuration.HubConfiguration;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
@@ -10,7 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-import static eu.builderscoffee.api.configuration.Configurations.readOrCreateConfiguration;
+import static eu.builderscoffee.api.bukkit.configuration.Configurations.readOrCreateConfiguration;
 
 public class Main extends JavaPlugin {
 

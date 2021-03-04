@@ -1,15 +1,14 @@
 package eu.builderscoffee.hub.listeners;
 
-import eu.builderscoffee.api.board.FastBoard;
-import eu.builderscoffee.api.utils.HeaderAndFooter;
-import eu.builderscoffee.api.utils.ItemBuilder;
-import eu.builderscoffee.api.utils.LocationsUtil;
-import eu.builderscoffee.api.utils.Title;
+import eu.builderscoffee.api.bukkit.board.FastBoard;
+import eu.builderscoffee.api.bukkit.utils.HeaderAndFooter;
+import eu.builderscoffee.api.bukkit.utils.ItemBuilder;
+import eu.builderscoffee.api.bukkit.utils.LocationsUtil;
+import eu.builderscoffee.api.bukkit.utils.Title;
 import eu.builderscoffee.hub.Main;
 import eu.builderscoffee.hub.board.BBBoard;
 import eu.builderscoffee.hub.configuration.HubConfiguration;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
-import lombok.val;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -27,15 +26,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 public class PlayerListener implements Listener {
 

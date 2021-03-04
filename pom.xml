@@ -96,7 +96,7 @@
             <artifactId>BuildersCoffeCommons</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../library/BuildersCoffeeCommons-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/libs/BuildersCoffeeCommons-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
     </dependencies>
