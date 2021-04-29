@@ -5,7 +5,9 @@ import eu.builderscoffee.hub.board.BBBoard;
 import eu.builderscoffee.hub.configuration.HubConfiguration;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
 import eu.builderscoffee.hub.listeners.PlayerListener;
+import eu.builderscoffee.hub.tasks.RankingTask;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -40,10 +42,13 @@ public class Main extends JavaPlugin {
                 BBBoard.updateBoard(board);
             }
         }, 0, 20);
+
+        RankingTask.destroyArmorstands();
+        RankingTask.getRankingTask().runTaskTimer(this, 0L, 20*60*5L);
     }
 
     @Override
     public void onDisable() {
-        // Nothing to do here
+        // Nothing to do
     }
 }
