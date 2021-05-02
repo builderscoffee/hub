@@ -42,23 +42,53 @@ public class RankingTask extends BukkitRunnable {
     @Override
     public void run() {
         val store = Main.getInstance().getNotesStore();
-        /*val result = store.select(ProfilEntity.NAME.as("name"),
-                    NoteEntity.AMENAGEMENT.as("amenagement"),
-                    NoteEntity.BEAUTE.as("beaute"),
-                    NoteEntity.CREATIVITE.as("creativite"),
-                    NoteEntity.FOLKLORE.as("folklore"),
-                    NoteEntity.FUN.as("fun"))
-                .from(NoteEntity.class)
-                .leftJoin(ProfilEntity.class).on(NoteEntity.PROFIL_ID.eq(ProfilEntity.ID))
-                .groupBy(ProfilEntity.NAME)
-                .get()
-                .toList();*/
-        try (val result = store.raw("SELECT p.name, sum(n." + NoteEntity.AMENAGEMENT.getName() + ") + sum(n." + NoteEntity.BEAUTE.getName() + ") + sum(n." + NoteEntity.CREATIVITE.getName() + ") + sum(n." + NoteEntity.FOLKLORE.getName() + ") + sum(n." + NoteEntity.FUN.getName() + ") as 'score' " +
+
+/*
+!!! Sans prendre compte du score moyen !!!
+
+SELECT p.name, sum(n.amenagement) + sum(n.beaute) + sum(n.creativite) + sum(n.folklore) + sum(n.fun) as 'score'
+FROM notes n
+JOIN profils p
+ON (n.id_profil = p.id)
+GROUP BY p.name
+ORDER BY score DESC
+LIMIT 10
+
+!!! En prennent compte du score moyen !!!
+
+SELECT g.name, g.total
+FROM (SELECT sub.name, SUM(sub.score) as 'total'
+    FROM (SELECT p.name,
+            n.id_buildbattle,
+            (sum(n.amenagement) + sum(n.beaute) + sum(n.creativite) + sum(n.folklore) + sum(n.fun)) / COUNT(n.id_buildbattle) as 'score'
+        FROM notes n
+        JOIN profils p
+        ON (n.id_profil = p.id)
+        GROUP BY p.name, n.id_buildbattle
+        ORDER BY score DESC) sub
+    GROUP BY sub.name) g
+ORDER BY g.total DESC
+LIMIT 10
+ */
+        /*try (val result = store.raw("SELECT p.name, sum(n." + NoteEntity.AMENAGEMENT.getName() + ") + sum(n." + NoteEntity.BEAUTE.getName() + ") + sum(n." + NoteEntity.CREATIVITE.getName() + ") + sum(n." + NoteEntity.FOLKLORE.getName() + ") + sum(n." + NoteEntity.FUN.getName() + ") as 'score' " +
                 "FROM " + NoteEntity.$TYPE.getName() + " n " +
                 "JOIN " + ProfilEntity.$TYPE.getName() + " p " +
                 "ON (n." + NoteEntity.PROFIL_ID.getName() + " = p." + ProfilEntity.ID.getName() + ") " +
                 "GROUP BY p." + ProfilEntity.NAME.getName() + " " +
                 "ORDER BY score desc " +
+                "LIMIT 10")) {*/
+        try (val result = store.raw("SELECT g." + ProfilEntity.NAME.getName() + ", g.total " +
+                "FROM (SELECT sub." + ProfilEntity.NAME.getName() + ", SUM(sub.score) as 'total' " +
+                    "FROM (SELECT p." + ProfilEntity.NAME.getName() + ", " +
+                            "n." + NoteEntity.BUILDBATTLE_ID.getName() + ", " +
+                            "(sum(n." + NoteEntity.AMENAGEMENT.getName() + ") + sum(n." + NoteEntity.BEAUTE.getName() + ") + sum(n." + NoteEntity.CREATIVITE.getName() + ") + sum(n." + NoteEntity.FOLKLORE.getName() +") + sum(n." + NoteEntity.FUN.getName() + ")) / COUNT(n." + NoteEntity.BUILDBATTLE_ID.getName() + ") as 'score' " +
+                        "FROM " + NoteEntity.$TYPE.getName() + " n " +
+                        "JOIN " + ProfilEntity.$TYPE.getName() + " p " +
+                        "ON (n." + NoteEntity.PROFIL_ID.getName() + " = p." + ProfilEntity.ID.getName() +") " +
+                        "GROUP BY p." + ProfilEntity.NAME.getName() + ", n." + NoteEntity.BUILDBATTLE_ID.getName() + " " +
+                        "ORDER BY score DESC) sub " +
+                    "GROUP BY sub." + ProfilEntity.NAME.getName() + ") g " +
+                "ORDER BY g.total DESC " +
                 "LIMIT 10")) {
             val resultList = result.toList();
             val generalRankingLoc = LocationsUtil.getLocationFromString(HUB_CONFIGURATION.getGeneral_ranking_location());
@@ -81,25 +111,67 @@ public class RankingTask extends BukkitRunnable {
                 } else {
                     armorstand.setCustomName(MESSAGE_CONFIGURATION.getGeneral_ranking_format_message().replace("&", "§")
                             .replace("%player%", resultList.get(i).get(0))
-                            .replace("%score%", resultList.get(i).get(1) + ""));
+                            .replace("%score%", ((int)Double.parseDouble(resultList.get(i).get(1).toString())) + ""));
                 }
             }
         }
 
 
-        try (val result = store.raw("SELECT p.name, sum(n." + NoteEntity.AMENAGEMENT.getName() + ") + sum(n." + NoteEntity.BEAUTE.getName() + ") + sum(n." + NoteEntity.CREATIVITE.getName() + ") + sum(n." + NoteEntity.FOLKLORE.getName() + ") + sum(n." + NoteEntity.FUN.getName() + ") as 'score' " +
-                "FROM " + NoteEntity.$TYPE.getName() + " n " +
-                "JOIN " + ProfilEntity.$TYPE.getName() + " p " +
-                "ON (n." + NoteEntity.PROFIL_ID.getName() + " = p." + ProfilEntity.ID.getName() + ") " +
-                "JOIN (" +
-                        "SELECT " + BuildbattleEntity.ID.getName() + ", " + BuildbattleEntity.DATE.getName() + " " +
-                        "FROM " + BuildbattleEntity.$TYPE.getName() + " " +
-                        "WHERE " + BuildbattleEntity.DATE.getName() + " < NOW() " +
-                        "ORDER BY date DESC " +
-                        "LIMIT 1) b " +
-                "ON (b." + BuildbattleEntity.ID.getName() + " = n." + NoteEntity.BUILDBATTLE_ID.getName() + ") " +
-                "GROUP BY p." + ProfilEntity.NAME.getName() + " " +
-                "ORDER BY score desc " +
+/*
+!!! Sans prendre compte du score moyen !!!
+
+SELECT p.name, sum(n.amenagement) + sum(n.beaute) + sum(n.creativite) + sum(n.folklore) + sum(n.fun) as 'score'
+FROM notes n
+JOIN profils p
+ON (n.id_profil = p.id)
+JOIN(
+    SELECT id, date
+    FROM buildbattles
+    WHERE date < NOW()
+    ORDER BY date DESC
+    LIMIT 1) b
+ON (b.id = n.id_buildbattle)
+GROUP BY p.name
+ORDER BY score DESC
+LIMIT 10
+
+
+!!! En prennant en compte la moyenne du score !!!
+SELECT sub.name, SUM(sub.score) as 'total'
+FROM (SELECT p.name,
+      	n.id_buildbattle,
+        (sum(n.amenagement) + sum(n.beaute) + sum(n.creativite) + sum(n.folklore) + sum(n.fun)) / COUNT(n.id_buildbattle) as 'score'
+    FROM notes n
+    JOIN profils p
+    ON (n.id_profil = p.id)
+    GROUP BY p.name, n.id_buildbattle
+    ORDER BY score DESC) sub
+WHERE sub.id_buildbattle = (SELECT id
+    FROM buildbattles
+    WHERE date < NOW()
+    ORDER BY date DESC
+    LIMIT 1)
+GROUP BY sub.name
+ORDER BY 'total' DESC
+LIMIT 10
+
+ */
+        try (val result = store.raw("SELECT sub." + ProfilEntity.NAME.getName() + ", SUM(sub.score) as 'total' " +
+                "FROM (SELECT p." + ProfilEntity.NAME.getName() + ", " +
+                        "n." + NoteEntity.BUILDBATTLE_ID.getName() + ", " +
+                        "(sum(n." + NoteEntity.AMENAGEMENT.getName() + ") + sum(n." + NoteEntity.BEAUTE.getName() + ") + sum(n." + NoteEntity.CREATIVITE.getName() + ") + sum(n." + NoteEntity.FOLKLORE.getName() + ") + sum(n." + NoteEntity.FUN.getName() + ")) / COUNT(n." + NoteEntity.BUILDBATTLE_ID.getName() + ") as 'score' " +
+                    "FROM " + NoteEntity.$TYPE.getName() + " n " +
+                    "JOIN " + ProfilEntity.$TYPE.getName() + " p " +
+                    "ON (n." + NoteEntity.PROFIL_ID.getName() + " = p." + ProfilEntity.ID.getName() + ") " +
+                    "GROUP BY p." + ProfilEntity.NAME.getName() + ", n." + NoteEntity.BUILDBATTLE_ID.getName() + " " +
+                    "ORDER BY score DESC) sub " +
+                "WHERE sub." + NoteEntity.BUILDBATTLE_ID.getName() + " = (SELECT " + BuildbattleEntity.ID.getName() + " " +
+                    "FROM " + BuildbattleEntity.$TYPE.getName() + " " +
+                    "WHERE " + BuildbattleEntity.DATE.getName() + " < NOW() " +
+                    "ORDER BY " + BuildbattleEntity.DATE.getName() + " DESC " +
+                    "LIMIT 1) " +
+                "GROUP BY sub." + ProfilEntity.NAME.getName() + " " +
+                "ORDER BY 'total' DESC " +
                 "LIMIT 10")) {
             val resultList = result.toList();
             val lastRankingLoc = LocationsUtil.getLocationFromString(HUB_CONFIGURATION.getLast_buildbattle_ranking_location());
@@ -122,7 +194,7 @@ public class RankingTask extends BukkitRunnable {
                 } else {
                     armorstand.setCustomName(MESSAGE_CONFIGURATION.getLast_buildbattle_ranking_format_message().replace("&", "§")
                             .replace("%player%", resultList.get(i).get(0))
-                            .replace("%score%", resultList.get(i).get(1) + ""));
+                            .replace("%score%", ((int)Double.parseDouble(resultList.get(i).get(1).toString())) + ""));
                 }
             }
         }
