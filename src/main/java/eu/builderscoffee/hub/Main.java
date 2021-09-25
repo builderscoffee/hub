@@ -1,10 +1,10 @@
 package eu.builderscoffee.hub;
 
-import eu.builderscoffee.api.bukkit.board.FastBoard;
 import eu.builderscoffee.hub.board.BBBoard;
 import eu.builderscoffee.hub.configuration.HubConfiguration;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
 import eu.builderscoffee.hub.listeners.PlayerListener;
+import eu.builderscoffee.hub.tasks.RankingTask;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -12,14 +12,13 @@ import java.util.logging.Level;
 
 import static eu.builderscoffee.api.bukkit.configuration.Configurations.readOrCreateConfiguration;
 
+@Getter
 public class Main extends JavaPlugin {
 
     @Getter
     private static Main instance;
     //Configuration
-    @Getter
     private MessageConfiguration messageConfiguration;
-    @Getter
     private HubConfiguration hubConfiguration;
 
     @Override
@@ -31,19 +30,19 @@ public class Main extends JavaPlugin {
         messageConfiguration = readOrCreateConfiguration(this, MessageConfiguration.class);
         hubConfiguration = readOrCreateConfiguration(this, HubConfiguration.class);
 
-        // Register Events
+        // Enregistrement des listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 
         // Update scoreboard
-        this.getServer().getScheduler().runTaskTimer(this, () -> {
-            for (FastBoard board : BBBoard.boards.values()) {
-                BBBoard.updateBoard(board);
-            }
-        }, 0, 20);
+        this.getServer().getScheduler().runTaskTimer(this, () -> BBBoard.boards.values().forEach(BBBoard::updateBoard), 0, 20);
+
+        // Destruction des armorstands de classement
+        RankingTask.destroyArmorstands();
+        RankingTask.getRankingTask().runTaskTimer(this, 0L, 20 * 60 * 5L);
     }
 
     @Override
     public void onDisable() {
-        // Nothing to do here
+        // Nothing to do
     }
 }

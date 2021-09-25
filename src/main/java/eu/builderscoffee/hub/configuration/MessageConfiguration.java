@@ -2,7 +2,6 @@ package eu.builderscoffee.hub.configuration;
 
 import eu.builderscoffee.api.common.configuration.annotation.Configuration;
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +18,13 @@ public final class MessageConfiguration {
 
     String scoreBoardTitle = "&6&l- Builders Coffee -";
 
+    String general_ranking_header_message = "&7&nClassement Générale";
+    String last_buildbattle_ranking_header_message = "&7&nClassement du dernier expresso";
+    String commandMustBePlayer = "&cSeul un joueur peut executer cette commande !";
+    String general_ranking_format_message = "&6%player% &8- &f%score%";
+    String last_buildbattle_ranking_format_message = "&6%player% &8- &f%score%";
+
     // Board
-    @Getter
     List<String> scoreBoard = Arrays.asList("&0&8&m----------&8&m------",
             " &aGrade: &6%rank% ",
             " &aConnectés: &6%online%",

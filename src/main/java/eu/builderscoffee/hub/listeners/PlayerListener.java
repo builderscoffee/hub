@@ -59,7 +59,7 @@ public class PlayerListener implements Listener {
         player.getInventory().clear();
         player.getInventory().setHeldItemSlot(4);
         player.getInventory().setItem(4, hubCompass);
-        player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation()));
+        player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawn_location()));
 
         new Title(messagesConfig.getTitle().replace("&", "§"), messagesConfig.getSubTitle().replace("&", "§"), 20, 100, 20).send(player);
         new HeaderAndFooter(messagesConfig.getHeaderMessage().replace("&", "§"), messagesConfig.getFooterMessage().replace("&", "§")).send(player);
@@ -98,7 +98,7 @@ public class PlayerListener implements Listener {
 
         if(message.equalsIgnoreCase("/hub") || message.equalsIgnoreCase("/lobby")) {
             event.setCancelled(true);
-            player.teleport(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()));
+            player.teleport(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()));
         }
     }
 
@@ -136,7 +136,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         final Player player = event.getPlayer();
-        final Location hubLocation = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawnLocation());
+        final Location hubLocation = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawn_location());
 
         if (player.getLocation().getWorld().equals(hubLocation.getWorld()) && player.getLocation().getY() < 0) {
             player.teleport(hubLocation);
@@ -190,7 +190,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onExplode(ExplosionPrimeEvent event) {
         final Location location = event.getEntity().getLocation();
-        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()))) {
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()))) {
             event.setCancelled(true);
         }
     }
@@ -198,7 +198,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
         final Location location = event.getEntity().getLocation();
-        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()))) {
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()))) {
             event.setCancelled(true);
         }
     }
@@ -206,7 +206,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void OnLeaveDecay(LeavesDecayEvent event) {
         final Location location = event.getBlock().getLocation();
-        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawnLocation()))) {
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()))) {
             event.setCancelled(true);
         }
     }

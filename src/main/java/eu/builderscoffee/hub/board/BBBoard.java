@@ -4,6 +4,7 @@ import eu.builderscoffee.api.bukkit.board.FastBoard;
 import eu.builderscoffee.commons.common.utils.LuckPermsUtils;
 import eu.builderscoffee.hub.Main;
 import eu.builderscoffee.hub.configuration.MessageConfiguration;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -20,20 +21,33 @@ public class BBBoard {
      */
     public static void updateBoard(FastBoard board) {
         final Player player = board.getPlayer();
-        eu.builderscoffee.api.bukkit.Main.getBungeeChannelApi().getPlayerCount("ALL")
-                .whenComplete((result, error) -> {
-                    amountPlayers = result;
-                });
+        if(Bukkit.getOnlinePlayers().size() > 0)
+            eu.builderscoffee.api.bukkit.Main.getBungeeChannelApi().getPlayerCount("ALL")
+                    .whenComplete((result, error) -> {
+                        amountPlayers = result;
+                    });
         List<String> lines = new ArrayList<>();
-        final String primaryGroup = LuckPermsUtils.getPrimaryGroup(player.getUniqueId()).substring(0, 1).toUpperCase() + LuckPermsUtils.getPrimaryGroup(player.getUniqueId()).substring(1);
-        messages.getScoreBoard().forEach(line -> lines.add(line
+        if(player != null && LuckPermsUtils.getPrimaryGroup(player.getUniqueId()) != null){
+            final String primaryGroup = LuckPermsUtils.getPrimaryGroup(player.getUniqueId()).substring(0, 1).toUpperCase() + LuckPermsUtils.getPrimaryGroup(player.getUniqueId()).substring(1);
+            messages.getScoreBoard().forEach(line -> lines.add(line
                 .replace("%player%", player.getName())
                 .replace("%online%", "" + amountPlayers)
                 .replace("%rank%", primaryGroup)
-                .replace("%prefix%", LuckPermsUtils.getPrefix(player.getUniqueId()))
-                .replace("%suffix%", LuckPermsUtils.getSuffix(player.getUniqueId()))
+                .replace("%prefix%", LuckPermsUtils.getPrefixOrEmpty(player.getUniqueId()))
+                .replace("%suffix%", LuckPermsUtils.getSuffixOrEmpty(player.getUniqueId()))
                 .replace("&", "§")
-        ));
+            ));
+        }
+        else{
+            messages.getScoreBoard().forEach(line -> lines.add(line
+                .replace("%player%", player.getName())
+                .replace("%online%", "" + amountPlayers)
+                .replace("%rank%", "Unknown")
+                .replace("%prefix%", "Unknown")
+                .replace("%suffix%", "Unknown")
+                .replace("&", "§")
+            ));
+        }
         board.updateLines(lines);
     }
 }
