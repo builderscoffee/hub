@@ -1,5 +1,6 @@
 package eu.builderscoffee.hub.board;
 
+import eu.builderscoffee.api.bukkit.BuildersCoffeeAPI;
 import eu.builderscoffee.api.bukkit.board.FastBoard;
 import eu.builderscoffee.commons.common.utils.LuckPermsUtils;
 import eu.builderscoffee.hub.Main;
@@ -22,7 +23,7 @@ public class BBBoard {
     public static void updateBoard(FastBoard board) {
         final Player player = board.getPlayer();
         if(Bukkit.getOnlinePlayers().size() > 0)
-            eu.builderscoffee.api.bukkit.Main.getBungeeChannelApi().getPlayerCount("ALL")
+            BuildersCoffeeAPI.getBungeeChannelApi().getPlayerCount("ALL")
                     .whenComplete((result, error) -> {
                         amountPlayers = result;
                     });

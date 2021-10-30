@@ -3,4 +3,4 @@ version: 0.1
 description: Hub for Builders Coffe.
 author: Ketsu_sama
 main: eu.builderscoffee.hub.Main
-depend: [ BuildersCoffeeAPI, BuilderCoffeeCommons ]
+depend: [ BuildersCoffeeAPI, BuildersCoffeeCommons ]

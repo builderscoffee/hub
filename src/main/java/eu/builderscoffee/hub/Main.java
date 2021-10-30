@@ -10,7 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-import static eu.builderscoffee.api.bukkit.configuration.Configurations.readOrCreateConfiguration;
+import static eu.builderscoffee.api.common.configuration.Configuration.readOrCreateConfiguration;
 
 @Getter
 public class Main extends JavaPlugin {
@@ -27,8 +27,8 @@ public class Main extends JavaPlugin {
 
         // Configuration
         instance.getLogger().log(Level.INFO, "Chargement des configurations");
-        messageConfiguration = readOrCreateConfiguration(this, MessageConfiguration.class);
-        hubConfiguration = readOrCreateConfiguration(this, HubConfiguration.class);
+        messageConfiguration = readOrCreateConfiguration(this.getName(), MessageConfiguration.class);
+        hubConfiguration = readOrCreateConfiguration(this.getName(), HubConfiguration.class);
 
         // Enregistrement des listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
