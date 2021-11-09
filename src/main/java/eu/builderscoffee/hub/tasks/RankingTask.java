@@ -5,8 +5,8 @@ import eu.builderscoffee.api.common.data.DataManager;
 import eu.builderscoffee.api.common.data.tables.BuildbattleEntity;
 import eu.builderscoffee.api.common.data.tables.NoteEntity;
 import eu.builderscoffee.api.common.data.tables.ProfilEntity;
-import eu.builderscoffee.hub.configuration.HubConfiguration;
-import eu.builderscoffee.hub.configuration.MessageConfiguration;
+import eu.builderscoffee.hub.Main;
+import eu.builderscoffee.hub.utils.MessageUtils;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.bukkit.Location;
@@ -23,9 +23,6 @@ public class RankingTask extends BukkitRunnable {
     private static final Map<Integer, ArmorStand> GENERAL_RANKING_AMORSTANDS = new HashMap<>();
     private static final Map<Integer, ArmorStand> LAST_RANKING_AMORSTANDS = new HashMap<>();
 
-    private static final HubConfiguration HUB_CONFIGURATION = eu.builderscoffee.hub.Main.getInstance().getHubConfiguration();
-    private static final MessageConfiguration MESSAGE_CONFIGURATION = eu.builderscoffee.hub.Main.getInstance().getMessageConfiguration();
-
     private static RankingTask rankingTask;
 
     public static RankingTask getRankingTask() {
@@ -36,14 +33,14 @@ public class RankingTask extends BukkitRunnable {
 
     public static void destroyArmorstands() {
 
-        val generalRankingLoc = LocationsUtil.getLocationFromString(HUB_CONFIGURATION.getGeneral_ranking_location());
+        val generalRankingLoc = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getGeneralRankingLocation());
         val generalRankingEntities = generalRankingLoc.getWorld().getNearbyEntities(generalRankingLoc, 3, 3, 3);
         for (Entity entity : generalRankingEntities) {
             if (entity instanceof ArmorStand)
                 entity.remove();
         }
 
-        val lastRankingLoc = LocationsUtil.getLocationFromString(HUB_CONFIGURATION.getLast_buildbattle_ranking_location());
+        val lastRankingLoc = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getLastBuildbattleRankingLocation());
         val lastRankingEntities = lastRankingLoc.getWorld().getNearbyEntities(lastRankingLoc, 3, 3, 3);
         for (Entity entity : lastRankingEntities) {
             if (entity instanceof ArmorStand)
@@ -104,7 +101,7 @@ LIMIT 10
                 "ORDER BY g.total DESC " +
                 "LIMIT 10")) {
             val resultList = result.toList();
-            val generalRankingLoc = LocationsUtil.getLocationFromString(HUB_CONFIGURATION.getGeneral_ranking_location());
+            val generalRankingLoc = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getGeneralRankingLocation());
 
             for (int i = -1; i < resultList.size(); i++) {
                 val tempLoc = new Location(generalRankingLoc.getWorld(), generalRankingLoc.getX(), generalRankingLoc.getY() + 1 - ((i == -1 ? 0.4 : 0.2) * i), generalRankingLoc.getZ());
@@ -120,9 +117,9 @@ LIMIT 10
                 armorstand.setBasePlate(false);
                 armorstand.setVisible(false);
                 if (i == -1) {
-                    armorstand.setCustomName(MESSAGE_CONFIGURATION.getGeneral_ranking_header_message().replace("&", "§"));
+                    armorstand.setCustomName(MessageUtils.getDefaultMessageConfig().getRanking().getGeneralTitle().replace("&", "§"));
                 } else {
-                    armorstand.setCustomName(MESSAGE_CONFIGURATION.getGeneral_ranking_format_message().replace("&", "§")
+                    armorstand.setCustomName(MessageUtils.getDefaultMessageConfig().getRanking().getGeneralFormat().replace("&", "§")
                             .replace("%player%", resultList.get(i).get(0))
                             .replace("%score%", ((int) Double.parseDouble(resultList.get(i).get(1).toString())) + ""));
                 }
@@ -187,7 +184,7 @@ LIMIT 10
                 "ORDER BY 'total' DESC " +
                 "LIMIT 10")) {
             val resultList = result.toList();
-            val lastRankingLoc = LocationsUtil.getLocationFromString(HUB_CONFIGURATION.getLast_buildbattle_ranking_location());
+            val lastRankingLoc = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getLastBuildbattleRankingLocation());
 
             for (int i = -1; i < resultList.size(); i++) {
                 val tempLoc = new Location(lastRankingLoc.getWorld(), lastRankingLoc.getX(), lastRankingLoc.getY() + 1 - ((i == -1 ? 0.4 : 0.2) * i), lastRankingLoc.getZ());
@@ -203,9 +200,9 @@ LIMIT 10
                 armorstand.setBasePlate(false);
                 armorstand.setVisible(false);
                 if (i == -1) {
-                    armorstand.setCustomName(MESSAGE_CONFIGURATION.getLast_buildbattle_ranking_header_message().replace("&", "§"));
+                    armorstand.setCustomName(MessageUtils.getDefaultMessageConfig().getRanking().getLastBuildbattleTitle().replace("&", "§"));
                 } else {
-                    armorstand.setCustomName(MESSAGE_CONFIGURATION.getLast_buildbattle_ranking_format_message().replace("&", "§")
+                    armorstand.setCustomName(MessageUtils.getDefaultMessageConfig().getRanking().getLastBuildbattleFormat().replace("&", "§")
                             .replace("%player%", resultList.get(i).get(0))
                             .replace("%score%", ((int) Double.parseDouble(resultList.get(i).get(1).toString())) + ""));
                 }

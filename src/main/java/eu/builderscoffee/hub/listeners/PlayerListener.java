@@ -5,11 +5,15 @@ import eu.builderscoffee.api.bukkit.utils.HeaderAndFooter;
 import eu.builderscoffee.api.bukkit.utils.ItemBuilder;
 import eu.builderscoffee.api.bukkit.utils.LocationsUtil;
 import eu.builderscoffee.api.bukkit.utils.Title;
+import eu.builderscoffee.commons.bukkit.utils.SkullCreator;
 import eu.builderscoffee.hub.Main;
 import eu.builderscoffee.hub.board.BBBoard;
-import eu.builderscoffee.hub.configuration.HubConfiguration;
-import eu.builderscoffee.hub.configuration.MessageConfiguration;
-import org.bukkit.*;
+import eu.builderscoffee.hub.utils.MessageUtils;
+import lombok.val;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
@@ -30,17 +34,25 @@ import org.bukkit.util.Vector;
 
 public class PlayerListener implements Listener {
 
-    private final MessageConfiguration messagesConfig = Main.getInstance().getMessageConfiguration();
-    private final HubConfiguration hubConfig = Main.getInstance().getHubConfiguration();
-    private final ItemStack hubCompass = new ItemBuilder(Material.COMPASS).setName(messagesConfig.getCompassName()).build();
+    private ItemStack navigationItem(Player player){
+        return new ItemBuilder(Material.COMPASS)
+                .setName(MessageUtils.getMessageConfig(player).getItems().getNavigation())
+                .build();
+    }
+
+    private ItemStack profileItem(Player player){
+        return new ItemBuilder(SkullCreator.itemFromUuid(player.getUniqueId()))
+                .setName(MessageUtils.getMessageConfig(player).getItems().getProfile())
+                .build();
+    }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        final Player player = event.getPlayer();
+        val player = event.getPlayer();
 
         // Scoreboard Updater
-        FastBoard board = new FastBoard(player);
-        board.updateTitle(messagesConfig.getScoreBoardTitle().replace("&", "§")); // Même titre pour tout
+        val board = new FastBoard(player);
+        board.updateTitle(MessageUtils.getMessageConfig(player).getScoreboard().getTitle().replace("&", "§")); // Même titre pour tout
         BBBoard.boards.put(player.getUniqueId(), board);
 
         // Player initialisation
@@ -48,29 +60,25 @@ public class PlayerListener implements Listener {
         player.setHealth(20);
         player.setFoodLevel(20);
 
-        Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                player.setFlying(false);
-                player.setAllowFlight(true);
-            }
+        Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> {
+            player.setFlying(false);
+            player.setAllowFlight(true);
         }, 2L);
 
         player.getInventory().clear();
         player.getInventory().setHeldItemSlot(4);
-        player.getInventory().setItem(4, hubCompass);
-        player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawn_location()));
+        player.getInventory().setItem(4, navigationItem(player));
+        player.getInventory().setItem(8, profileItem(player));
+        player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getSpawnLocation()));
 
-        new Title(messagesConfig.getTitle().replace("&", "§"), messagesConfig.getSubTitle().replace("&", "§"), 20, 100, 20).send(player);
-        new HeaderAndFooter(messagesConfig.getHeaderMessage().replace("&", "§"), messagesConfig.getFooterMessage().replace("&", "§")).send(player);
+        new Title(MessageUtils.getMessageConfig(player).getTitle().getTitle().replace("&", "§"), MessageUtils.getMessageConfig(player).getTitle().getSubTitle().replace("&", "§"), 20, 100, 20).send(player);
+        new HeaderAndFooter(MessageUtils.getMessageConfig(player).getTablist().getHeader().replace("&", "§"), MessageUtils.getMessageConfig(player).getTablist().getFooter().replace("&", "§")).send(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        final Player player = event.getPlayer();
-
         // Scoreboard clean
-        FastBoard board = BBBoard.boards.remove(event.getPlayer().getUniqueId());
+        val board = BBBoard.boards.remove(event.getPlayer().getUniqueId());
         if (board != null)
             board.delete();
     }
@@ -83,28 +91,31 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onOpenNetworkInventory(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
+    public void onOpenInventory(PlayerInteractEvent event) {
+        val player = event.getPlayer();
 
-        if (event.getItem() != null && event.getItem().isSimilar(hubCompass)) {
-            player.performCommand("network");
+        if (event.getItem() != null) {
+            if(event.getItem().isSimilar(navigationItem(player)))
+                player.performCommand("network");
+            else if(event.getItem().isSimilar(profileItem(player)))
+                player.performCommand("profile");
         }
     }
 
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
-        final Player player = event.getPlayer();
-        final String message = event.getMessage();
+        val player = event.getPlayer();
+        val message = event.getMessage();
 
         if(message.equalsIgnoreCase("/hub") || message.equalsIgnoreCase("/lobby")) {
             event.setCancelled(true);
-            player.teleport(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()));
+            player.teleport(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getSpawnLocation()));
         }
     }
 
     @EventHandler
     public void onToggleFly(PlayerToggleFlightEvent event) {
-        final Player player = event.getPlayer();
+        val player = event.getPlayer();
 
         if(player.getGameMode().equals(GameMode.ADVENTURE) || player.getGameMode().equals(GameMode.SURVIVAL)) {
             Vector vector = player.getLocation().getDirection().multiply(1);
@@ -114,21 +125,15 @@ public class PlayerListener implements Listener {
 
             event.setCancelled(true);
 
-            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    player.setAllowFlight(true);
-                }
-            }, 40L);
-
+            Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> player.setAllowFlight(true), 40L);
         }
     }
 
     @EventHandler
     public void onMoveInventoryItems(InventoryClickEvent event) {
-        final Player player = (Player) event.getWhoClicked();
+        val player = (Player) event.getWhoClicked();
 
-        if (!canModifyHub(player, "builderscoffee.temp")) {
+        if (!canModifyHub(player, Main.getInstance().getPermissionsConfig().getModifyHub())) {
             event.setCancelled(true);
         }
     }
@@ -136,7 +141,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         final Player player = event.getPlayer();
-        final Location hubLocation = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfiguration().getSpawn_location());
+        final Location hubLocation = LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getSpawnLocation());
 
         if (player.getLocation().getWorld().equals(hubLocation.getWorld()) && player.getLocation().getY() < 0) {
             player.teleport(hubLocation);
@@ -190,7 +195,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onExplode(ExplosionPrimeEvent event) {
         final Location location = event.getEntity().getLocation();
-        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()))) {
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getSpawnLocation()))) {
             event.setCancelled(true);
         }
     }
@@ -198,7 +203,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
         final Location location = event.getEntity().getLocation();
-        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()))) {
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getSpawnLocation()))) {
             event.setCancelled(true);
         }
     }
@@ -206,7 +211,7 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void OnLeaveDecay(LeavesDecayEvent event) {
         final Location location = event.getBlock().getLocation();
-        if (location.getWorld().equals(LocationsUtil.getLocationFromString(hubConfig.getSpawn_location()))) {
+        if (location.getWorld().equals(LocationsUtil.getLocationFromString(Main.getInstance().getHubConfig().getSpawnLocation()))) {
             event.setCancelled(true);
         }
     }
