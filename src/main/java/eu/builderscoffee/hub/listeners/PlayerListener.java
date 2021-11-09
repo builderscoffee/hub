@@ -98,7 +98,7 @@ public class PlayerListener implements Listener {
             if(event.getItem().isSimilar(navigationItem(player)))
                 player.performCommand("network");
             else if(event.getItem().isSimilar(profileItem(player)))
-                player.performCommand("profile");
+                player.performCommand("profil");
         }
     }
 
