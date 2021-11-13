@@ -1,6 +1,6 @@
-name: BuilderCoffeeHub
+name: Hub
 version: 0.1
 description: Hub for Builders Coffe.
-author: Ketsu_sama
+author: BuildersCoffee
 main: eu.builderscoffee.hub.Main
-depend: [ BuildersCoffeeAPI, BuildersCoffeeCommons ]
+depend: [ API, Commons ]
